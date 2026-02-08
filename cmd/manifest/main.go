@@ -38,10 +38,11 @@ type Config struct {
 
 // Manifest is the release manifest written to manifest.json.
 type Manifest struct {
-	Version     string                   `json:"version"`
-	Artifacts   map[string]ArchArtifacts `json:"artifacts"`
-	Firecracker ManifestFirecracker      `json:"firecracker"`
-	Build       ManifestBuild            `json:"build"`
+	SchemaVersion int                      `json:"schema_version"`
+	Version       string                   `json:"version"`
+	Artifacts     map[string]ArchArtifacts `json:"artifacts"`
+	Firecracker   ManifestFirecracker      `json:"firecracker"`
+	Build         ManifestBuild            `json:"build"`
 }
 
 // ArchArtifacts contains per-architecture artifact metadata.
@@ -192,8 +193,9 @@ func buildManifest(cfg Config, version, buildDir, commit string) (Manifest, erro
 	}
 
 	return Manifest{
-		Version:   version,
-		Artifacts: artifacts,
+		SchemaVersion: 1,
+		Version:       version,
+		Artifacts:     artifacts,
 		Firecracker: ManifestFirecracker{
 			Version: cfg.Firecracker.Version,
 			Source:  "github.com/firecracker-microvm/firecracker",
