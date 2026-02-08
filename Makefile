@@ -33,9 +33,9 @@ build-kernel: ## Download kernel for all architectures.
 	done
 
 .PHONY: build-rootfs
-build-rootfs: ## Build rootfs for all architectures (requires sudo).
+build-rootfs: ## Build rootfs for all architectures (requires root).
 	@for arch in $(ARCHITECTURES); do \
-		sudo $(SCRIPTS_DIR)/build-rootfs.sh \
+		$(SCRIPTS_DIR)/build-rootfs.sh \
 			--arch "$${arch}" \
 			--profile "$(PROFILE)" \
 			--branch "v$(DISTRO_VERSION)" \

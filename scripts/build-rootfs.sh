@@ -84,8 +84,8 @@ resolve_alpine_make_rootfs() {
   fi
 
   local tool_dir="${WORKDIR}/alpine-make-rootfs"
-  log "alpine-make-rootfs not found, cloning from GitHub"
-  git clone --depth 1 https://github.com/alpinelinux/alpine-make-rootfs.git "${tool_dir}" >/dev/null 2>&1
+  printf '[INFO] %s\n' "alpine-make-rootfs not found, cloning from GitHub" >&2
+  git clone --depth 1 https://github.com/alpinelinux/alpine-make-rootfs.git "${tool_dir}" >&2 || die "Failed to clone alpine-make-rootfs"
   chmod +x "${tool_dir}/alpine-make-rootfs"
   printf '%s' "${tool_dir}/alpine-make-rootfs"
 }

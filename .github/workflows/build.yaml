@@ -32,7 +32,10 @@ jobs:
         run: make build-kernel
 
       - name: Build rootfs
-        run: sudo make build-rootfs
+        run: |
+          sudo git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          sudo make build-rootfs
+          sudo chown -R "$(id -u):$(id -g)" build/
 
       - name: Generate manifest
         run: make manifest VERSION=dev-${{ github.sha }}
