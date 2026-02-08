@@ -1,0 +1,14 @@
+kernel:
+  version: "6.1.155"
+  ci_version: "v1.15" # Firecracker CI S3 bucket version.
+
+firecracker:
+  version: "v1.14.1"
+
+rootfs:
+  distro: "alpine"
+  distro_version: "3.23"
+  profile: "balanced"
+
+architectures:
+  - x86_64

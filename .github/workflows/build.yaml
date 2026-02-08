@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  pull_request:
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Validate config and Go tool
+        run: make validate
+
+  build:
+    name: Build images
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Download kernel
+        run: make build-kernel
+
+      - name: Build rootfs
+        run: sudo make build-rootfs
+
+      - name: Generate manifest
+        run: make manifest VERSION=dev-${{ github.sha }}
+
+      - name: Verify artifacts
+        run: |
+          echo "=== Build artifacts ==="
+          ls -lh build/
+          echo ""
+          echo "=== Manifest ==="
+          cat build/manifest.json
+          echo ""
+          test -f build/manifest.json
+          test -f build/vmlinux-x86_64
+          test -f build/rootfs-x86_64.ext4
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbx-images-dev
+          path: build/
+          retention-days: 7

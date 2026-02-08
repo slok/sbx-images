@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME}" >> "${GITHUB_OUTPUT}"
+
+      - name: Download kernel
+        run: make build-kernel
+
+      - name: Build rootfs
+        run: sudo make build-rootfs
+
+      - name: Generate manifest
+        run: make manifest VERSION=${{ steps.version.outputs.version }}
+
+      - name: Verify artifacts
+        run: |
+          echo "=== Build artifacts ==="
+          ls -lh build/
+          echo ""
+          echo "=== Manifest ==="
+          cat build/manifest.json
+          echo ""
+          test -f build/manifest.json
+          test -f build/vmlinux-x86_64
+          test -f build/rootfs-x86_64.ext4
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.version }}" \
+            --title "${{ steps.version.outputs.version }}" \
+            --generate-notes \
+            build/manifest.json \
+            build/vmlinux-x86_64 \
+            build/rootfs-x86_64.ext4
