@@ -216,6 +216,13 @@ append_if_missing '^PermitRootLogin[[:space:]]+yes$' 'PermitRootLogin yes' "${SS
 append_if_missing '^PermitEmptyPasswords[[:space:]]+yes$' 'PermitEmptyPasswords yes' "${SSHD_CONFIG}"
 append_if_missing '^PermitUserRC[[:space:]]+yes$' 'PermitUserRC yes' "${SSHD_CONFIG}"
 
+# Enable TCP forwarding (required for `sbx forward`).
+# The Alpine default sshd_config has "AllowTcpForwarding no" uncommented.
+# OpenSSH uses first-match-wins, so we must replace the existing line
+# rather than just appending.
+sed -i 's/^AllowTcpForwarding no$/AllowTcpForwarding yes/' "${SSHD_CONFIG}"
+append_if_missing '^AllowTcpForwarding[[:space:]]+yes$' 'AllowTcpForwarding yes' "${SSHD_CONFIG}"
+
 install_image_file "${FILES_DIR}/etc/resolv.conf" "etc/resolv.conf" 0644
 install_image_file "${FILES_DIR}/usr/sbin/sbx-init" "usr/sbin/sbx-init" 0755
 install_image_file "${FILES_DIR}/etc/sbx/session-env.sh" "etc/sbx/session-env.sh" 0644
